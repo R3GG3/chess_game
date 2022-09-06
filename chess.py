@@ -1,5 +1,6 @@
 #libs
 import sys, pygame
+from typing import Tuple
 import os.path
 pygame.init()
 
@@ -263,8 +264,8 @@ class Chessboard(pygame.sprite.Sprite):
 
         screen.blit(self.bking_image, self.bking_rect)
     
-    def choose_chess(self, chosen_chess):
-        pawn_start_pos = {
+    def choose_chess(self, chosen_chess : pygame.Rect):
+        self.pawn_start_pos = {
             "wpawn1": (47, 285),
             "wpawn2": (85, 285),
             "wpawn3": (125, 285),
@@ -292,124 +293,19 @@ class Chessboard(pygame.sprite.Sprite):
                 pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1], 5, 30), border_radius=5)
                 break
         
-        
         #White Pawn
         if self.chess_name.startswith("wpawn"):
-            bpawn_front = False
-            bpawn_front_name = ""
-            try:
-                bpawn_front = list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0], chosen_chess[1]-40)))].startswith("b")
-                bpawn_front_name = list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0], chosen_chess[1]-40)))]
-            except ValueError:
-                pass
-
-            #First Time
-            if not bpawn_front:
-                try:
-                    if chosen_chess[0] == pawn_start_pos[chess][0] and chosen_chess[1] == pawn_start_pos[chess][1]:
-                        self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]-40)))
-                        self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]-80)))
-
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]-40, chosen_chess[2], chosen_chess[3]))
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]-80, chosen_chess[2], chosen_chess[3]))
-                    
-                    #Other times :p
-                    else:
-                        self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]-40)))
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]-40, chosen_chess[2], chosen_chess[3]))
-                except ValueError:
-                    pass
-                except IndexError:
-                    pass
-            
-            bpawn_front_pos = (0, 0)
-            try:
-                bpawn_front_pos = self.chess_pos[bpawn_front_name]
-            except KeyError:
-                pass
-
-            #Check if enemy on top-left
-            try:
-                if list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0]-40, chosen_chess[1]-40)))].startswith("b"):
-                    calculated_field = self.calculate_field((chosen_chess[0]-40, chosen_chess[1]-40))
-                    if bpawn_front_pos != calculated_field:
-                        self.possible_moves.append(calculated_field)
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(calculated_field[0], calculated_field[1], chosen_chess[2], chosen_chess[3]))
-            except ValueError:
-                pass
-            except IndexError:
-                pass
-            #Check if enemy on top-right
-            try:
-                if list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0]+40, chosen_chess[1]-40)))].startswith("b"):
-                    calculated_field = self.calculate_field((chosen_chess[0]+40, chosen_chess[1]-40))                             
-                    if  bpawn_front_pos != calculated_field:
-                        self.possible_moves.append(calculated_field)
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(calculated_field[0], calculated_field[1], chosen_chess[2], chosen_chess[3]))
-            except ValueError:
-                pass
-            except IndexError:
-                pass
+            self.wpawn(chosen_chess)
         
         #Black Pawn
         if self.chess_name.startswith("bpawn"):
-            wpawn_front = False
-            wpawn_front_name = ""
-            try:
-                wpawn_front = list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0], chosen_chess[1]+40)))].startswith("w")
-                wpawn_front_name = list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0], chosen_chess[1]+40)))]
-            except ValueError:
-                pass
-
-            #First Time
-            if not wpawn_front:
-                try:
-                    if chosen_chess[0] == pawn_start_pos[chess][0] and chosen_chess[1] == pawn_start_pos[chess][1]:
-                        self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]+40)))
-                        self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]+80)))
-
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]+40, chosen_chess[2], chosen_chess[3]))
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]+80, chosen_chess[2], chosen_chess[3]))
-                    
-                    #Other times :p
-                    else:
-                        self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]+40)))
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]+40, chosen_chess[2], chosen_chess[3]))
-                except ValueError:
-                    pass
-                except IndexError:
-                    pass
-
-
-            wpawn_front_pos = (0, 0)
-            try:
-                wpawn_front_pos = self.chess_pos[wpawn_front_name]
-            except KeyError:
-                pass
-            #Check if enemy on top-left
-            try:
-                if list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0]+40, chosen_chess[1]+40)))].startswith("w"):
-                    calculated_field = self.calculate_field((chosen_chess[0]+40, chosen_chess[1]+40))
-                    if wpawn_front_pos != calculated_field:
-                        self.possible_moves.append(calculated_field)
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(calculated_field[0], calculated_field[1], chosen_chess[2], chosen_chess[3]))
-            except ValueError:
-                pass
-            except IndexError:
-                pass
-            #Check if enemy on top-right
-            try:
-                if list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0]-40, chosen_chess[1]+40)))].startswith("w"):
-                    calculated_field = self.calculate_field((chosen_chess[0]-40, chosen_chess[1]+40))
-                    if wpawn_front_pos != calculated_field:
-                        self.possible_moves.append(calculated_field)
-                        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(calculated_field[0], calculated_field[1], chosen_chess[2], chosen_chess[3]))
-            except ValueError:
-                pass
-            except IndexError:
-                pass
+            self.bpawn(chosen_chess)
     
-    def move_chess(self, dest):
+        #White Rook
+        if self.chess_name.startswith("wrook"):
+            self.wrook(chosen_chess)
+
+    def move_chess(self, dest : Tuple):
         old_pos = self.chess_pos[self.chess_name]
         print(self.chess_name)
         print(self.possible_moves)
@@ -424,7 +320,7 @@ class Chessboard(pygame.sprite.Sprite):
         
         self.update()
     
-    def calculate_field(self, pos):
+    def calculate_field(self, pos : Tuple):
         posx = 0
         posy = 0
         possible_numbers = []
@@ -444,6 +340,122 @@ class Chessboard(pygame.sprite.Sprite):
         is_chess_chosen = False
         chosen_chess_rect = ""
 
+    def wpawn(self, chosen_chess : pygame.Rect):
+        bpawn_front = False
+        bpawn_front_name = ""
+        try:
+            bpawn_front = list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0], chosen_chess[1]-40)))].startswith("b")
+            bpawn_front_name = list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0], chosen_chess[1]-40)))]
+        except ValueError:
+            pass
+
+        #First Time
+        if not bpawn_front:
+            try:
+                if chosen_chess[0] == self.pawn_start_pos[self.chess_name][0] and chosen_chess[1] == self.pawn_start_pos[self.chess_name][1]:
+                    self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]-40)))
+                    self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]-80)))
+
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]-40, chosen_chess[2], chosen_chess[3]))
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]-80, chosen_chess[2], chosen_chess[3]))
+                
+                #Other times :p
+                else:
+                    self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]-40)))
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]-40, chosen_chess[2], chosen_chess[3]))
+            except ValueError:
+                pass
+            except IndexError:
+                pass
+        
+        bpawn_front_pos = (0, 0)
+        try:
+            bpawn_front_pos = self.chess_pos[bpawn_front_name]
+        except KeyError:
+            pass
+
+        #Check if enemy on top-left
+        try:
+            if list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0]-40, chosen_chess[1]-40)))].startswith("b"):
+                calculated_field = self.calculate_field((chosen_chess[0]-40, chosen_chess[1]-40))
+                if bpawn_front_pos != calculated_field:
+                    self.possible_moves.append(calculated_field)
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(calculated_field[0], calculated_field[1], chosen_chess[2], chosen_chess[3]))
+        except ValueError:
+            pass
+        except IndexError:
+            pass
+        #Check if enemy on top-right
+        try:
+            if list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0]+40, chosen_chess[1]-40)))].startswith("b"):
+                calculated_field = self.calculate_field((chosen_chess[0]+40, chosen_chess[1]-40))                             
+                if  bpawn_front_pos != calculated_field:
+                    self.possible_moves.append(calculated_field)
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(calculated_field[0], calculated_field[1], chosen_chess[2], chosen_chess[3]))
+        except ValueError:
+            pass
+        except IndexError:
+            pass
+
+    def bpawn(self, chosen_chess : pygame.Rect):
+        wpawn_front = False
+        wpawn_front_name = ""
+        try:
+            wpawn_front = list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0], chosen_chess[1]+40)))].startswith("w")
+            wpawn_front_name = list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0], chosen_chess[1]+40)))]
+        except ValueError:
+            pass
+
+        #First Time
+        if not wpawn_front:
+            try:
+                if chosen_chess[0] == self.pawn_start_pos[self.chess_name][0] and chosen_chess[1] == self.pawn_start_pos[self.chess_name][1]:
+                    self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]+40)))
+                    self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]+80)))
+
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]+40, chosen_chess[2], chosen_chess[3]))
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]+80, chosen_chess[2], chosen_chess[3]))
+                
+                #Other times :p
+                else:
+                    self.possible_moves.append(self.calculate_field((chosen_chess[0], chosen_chess[1]+40)))
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(chosen_chess[0], chosen_chess[1]+40, chosen_chess[2], chosen_chess[3]))
+            except ValueError:
+                pass
+            except IndexError:
+                pass
+
+
+        wpawn_front_pos = (0, 0)
+        try:
+            wpawn_front_pos = self.chess_pos[wpawn_front_name]
+        except KeyError:
+            pass
+        #Check if enemy on top-left
+        try:
+            if list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0]+40, chosen_chess[1]+40)))].startswith("w"):
+                calculated_field = self.calculate_field((chosen_chess[0]+40, chosen_chess[1]+40))
+                if wpawn_front_pos != calculated_field:
+                    self.possible_moves.append(calculated_field)
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(calculated_field[0], calculated_field[1], chosen_chess[2], chosen_chess[3]))
+        except ValueError:
+            pass
+        except IndexError:
+            pass
+        #Check if enemy on top-right
+        try:
+            if list(self.chess_pos.keys())[list(self.chess_pos.values()).index(self.calculate_field((chosen_chess[0]-40, chosen_chess[1]+40)))].startswith("w"):
+                calculated_field = self.calculate_field((chosen_chess[0]-40, chosen_chess[1]+40))
+                if wpawn_front_pos != calculated_field:
+                    self.possible_moves.append(calculated_field)
+                    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(calculated_field[0], calculated_field[1], chosen_chess[2], chosen_chess[3]))
+        except ValueError:
+            pass
+        except IndexError:
+            pass
+
+    def wrook(self, chosen_chess : pygame.Rect):
+        pass
 
 
 
@@ -456,6 +468,9 @@ while True:
             sys.exit()
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
+            
+            #fix wrong mouse pos
+            pos = (pos[0]-10, pos[1]-10)
 
             # get a list of all sprites that are under the mouse cursor
             clicked_sprites = [s for s in chessboard.rect_list if s.collidepoint(pos)]
